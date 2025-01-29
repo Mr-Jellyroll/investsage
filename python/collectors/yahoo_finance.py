@@ -3,6 +3,16 @@ import pandas as pd
 from datetime import datetime, timedelta
 import sqlite3
 import logging
+import os
+from pathlib import Path
+
+# Get absolute path
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_DIR = PROJECT_ROOT / 'data'
+DB_PATH = DATA_DIR / 'investsage.db'
+
+# Create data dir if it doesn't exist
+DATA_DIR.mkdir(exist_ok=True)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -139,6 +149,9 @@ class StockDataCollector:
             logger.info(f"Updated historical data for {symbol}")
         
         return basic_info is not None and historical_data is not None
+
+def __init__(self, db_path=None):
+    self.db_path = str(db_path or DB_PATH)
 
 if __name__ == "__main__":
     # Example

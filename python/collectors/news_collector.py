@@ -7,6 +7,14 @@ from bs4 import BeautifulSoup
 import time
 from typing import List, Dict
 import os
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_DIR = PROJECT_ROOT / 'data'
+DB_PATH = DATA_DIR / 'investsage.db'
+
+# Create data dir if it doesn't exist
+DATA_DIR.mkdir(exist_ok=True)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,7 +24,8 @@ class NewsCollector:
         self.db_path = db_path
         self.rss_feeds = {
             'yahoo_finance': 'https://finance.yahoo.com/rss/',
-            'seeking_alpha': 'https://seekingalpha.com/feed'
+            'seeking_alpha': 'https://seekingalpha.com/feed',
+            'marketwatch': 'http://feeds.marketwatch.com/marketwatch/topstories/'
         }
         
     def get_connection(self):
@@ -28,7 +37,7 @@ class NewsCollector:
         """
         import re
         potential_tickers = re.findall(r'\b[A-Z]{1,5}\b', text)
-        
+
         # Filter out common words that might be mistaken for tickers
         common_words = {'A', 'I', 'AT', 'BE', 'DO', 'IT', 'SO', 'GO', 'THE'}
         return [t for t in potential_tickers if t not in common_words]
@@ -73,30 +82,49 @@ class NewsCollector:
     
     def parse_feed(self, feed_url: str) -> List[Dict]:
         """
-        Parses an RSS feed and extracts relevant articles
+        Parses an RSS feed
         """
         try:
             feed = feedparser.parse(feed_url)
             articles = []
             
             for entry in feed.entries:
-
-                title_symbols = self.extract_ticker_symbols(entry.title)
-                desc_symbols = self.extract_ticker_symbols(entry.description)
+                # Get description
+                description = (
+                    getattr(entry, 'description', '') or 
+                    getattr(entry, 'summary', '') or 
+                    getattr(entry, 'content', [{'value': ''}])[0]['value']
+                )
+                
+                # Get title
+                title = getattr(entry, 'title', '')
+                
+                # Extract symbols
+                title_symbols = self.extract_ticker_symbols(title)
+                desc_symbols = self.extract_ticker_symbols(description)
                 symbols = list(set(title_symbols + desc_symbols))
                 
-                if symbols:  # Only process articles that mention stock symbols
+                if symbols:
+                    try:
+                        published_date = datetime(*entry.published_parsed[:6]).isoformat()
+                    except (AttributeError, TypeError):
+                        # Try other date fields
+                        published_date = (
+                            getattr(entry, 'updated', '') or 
+                            getattr(entry, 'published', '') or 
+                            datetime.now().isoformat()
+                        )
+                    
                     article = {
-                        'title': entry.title,
+                        'title': title,
                         'url': entry.link,
-                        'published_date': datetime(*entry.published_parsed[:6]).isoformat(),
-                        'summary': entry.description,
+                        'published_date': published_date,
+                        'summary': description,
                         'symbols': symbols,
-                        'source': feed_url.split('/')[2]  # Extract domain as source
+                        'source': feed_url.split('/')[2]
                     }
                     articles.append(article)
                     
-                    # Be nice to servers
                     time.sleep(1)
             
             return articles
@@ -154,6 +182,9 @@ class NewsCollector:
             time.sleep(2)
         
         logger.info("News collection completed")
+
+def __init__(self, db_path=None):
+    self.db_path = str(db_path or DB_PATH)
 
 if __name__ == "__main__":
     collector = NewsCollector()
