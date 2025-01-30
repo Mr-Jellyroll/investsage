@@ -7,12 +7,14 @@ from typing import Dict, List, Optional
 import re
 from pathlib import Path
 from utils.secrets import get_reddit_credentials
+from .sentiment_analyzer import SentimentAnalyzer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class RedditCollector:
     def __init__(self, db_path='./data/investsage.db'):
+        self.sentiment_analyzer = SentimentAnalyzer()
         self.db_path = db_path
         self.subreddits = [
             'wallstreetbets',
@@ -88,15 +90,18 @@ class RedditCollector:
         return list(dict.fromkeys(valid_tickers))
 
     def calculate_sentiment(self, text: str) -> float:
-        """Placeholder for sentiment analysis"""
-        return 0.0  # Neutral sentiment for now
+        """Calculate sentiment score for text"""
+        scores = self.sentiment_analyzer.analyze_text(text)
+        return scores['compound']  # Return compound score
 
     def count_engagements(self, post) -> int:
-        """Count total engagements (score + comments)"""
+        """
+        Count total engagements (score + comments)
+        """
         return post.score + post.num_comments
 
     def collect_subreddit_posts(self, subreddit_name: str, limit: int = 100) -> List[Dict]:
-        """Collect posts from a subreddit"""
+
         try:
             logger.info(f"Collecting posts from r/{subreddit_name}")
             subreddit = self.reddit.subreddit(subreddit_name)
@@ -104,7 +109,7 @@ class RedditCollector:
 
             # Get hot posts
             for post in subreddit.hot(limit=limit):
-                # Extract tickers from title and body
+
                 title_tickers = self.extract_ticker_symbols(post.title)
                 body_tickers = self.extract_ticker_symbols(post.selftext)
                 symbols = list(set(title_tickers + body_tickers))
@@ -160,13 +165,15 @@ class RedditCollector:
             logger.error(f"Error saving posts to database: {str(e)}")
 
     def collect_sentiment(self, symbols: List[str] = None, post_limit: int = 100):
-        """Main method to collect social sentiment data"""
+        """
+        Main method to collect social sentiment data
+        """
         logger.info("Starting social sentiment collection")
         
         for subreddit in self.subreddits:
             posts = self.collect_subreddit_posts(subreddit, post_limit)
             
-            # Filter by symbols if specified
+            # Filter by symbols
             if symbols:
                 posts = [p for p in posts if p['symbol'] in symbols]
             
