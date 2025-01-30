@@ -40,7 +40,7 @@ class Position:
         total_cost = sum(lot.shares * lot.cost_basis for lot in self.tax_lots)
         return total_cost / self.shares if self.shares > 0 else 0
 
-class TaxAwarePortfolioAnalyzer:
+class PortfolioAnalyzer:
     def __init__(self, db_path: str):
         self.db_path = db_path
         self.long_term_tax_rate = 0.20  # 20% for long-term gains
