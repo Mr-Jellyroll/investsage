@@ -2,7 +2,7 @@ import sqlite3
 from pathlib import Path
 
 def reset_database():
-    # Get path to database
+    
     DB_PATH = Path(__file__).parent.parent / 'data' / 'investsage.db'
     print(f"Resetting database at: {DB_PATH}")
 
@@ -27,7 +27,21 @@ def reset_database():
             UNIQUE(filing_url)
         );
         
-        -- Add other tables back here...
+        -- Social sentiment data
+        CREATE TABLE IF NOT EXISTS social_sentiment (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            source TEXT NOT NULL,
+            post_id TEXT NOT NULL,
+            post_url TEXT,
+            content TEXT,
+            posted_date TIMESTAMP NOT NULL,
+            sentiment_score REAL,
+            engagement_count INTEGER,
+            last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (symbol) REFERENCES stocks(symbol),
+            UNIQUE(source, post_id)
+        );
     ''')
     conn.close()
     print("Database reset complete")

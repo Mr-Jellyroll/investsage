@@ -3,6 +3,7 @@ yfinance==0.2.36
 feedparser==6.0.10
 beautifulsoup4==4.12.2
 requests==2.31.0
+praw==7.7.1             #(Python Reddit API Wrapper)
 
 # Data processing
 pandas==2.1.0
@@ -14,4 +15,5 @@ python-dotenv==1.0.0
 
 # Utilities
 python-dateutil==2.8.2
-lxml==4.9.3  # For better HTML parsing
+lxml==4.9.3
+python-dotenv==1.0.0

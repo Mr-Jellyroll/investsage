@@ -18,7 +18,8 @@ print(f"Using database at: {DB_PATH}")
 collector = NewsCollector(str(DB_PATH))
 collector.rss_feeds = {
     'yahoo_finance': 'https://finance.yahoo.com/news/rssindex',
-    'seeking_alpha': 'https://seekingalpha.com/market_currents.xml'
+    'seeking_alpha': 'https://seekingalpha.com/market_currents.xml',
+    'marketwatch': 'http://feeds.marketwatch.com/marketwatch/topstories/'
 }
 
 # Test
