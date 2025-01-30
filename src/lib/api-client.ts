@@ -1,55 +1,49 @@
-import { AnalysisType, StockData, TechnicalIndicators } from '@/types/api';
+// Mock data for development
+const MOCK_SYMBOLS = [
+  'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META', 'TSLA', 'NVDA', 'JPM', 'BAC', 'WMT'
+];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const MOCK_STOCK_DATA = {
+  AAPL: {
+    price: 185.92,
+    change: 2.34,
+    changePercent: 1.27,
+    volume: 58432100,
+    previousClose: 183.58,
+    historicalData: [
+      { date: '2024-01-01', price: 180.50, volume: 1200000 },
+      { date: '2024-01-02', price: 182.75, volume: 1500000 },
+      { date: '2024-01-03', price: 181.25, volume: 1100000 },
+      { date: '2024-01-04', price: 183.00, volume: 1300000 },
+      { date: '2024-01-05', price: 185.50, volume: 1600000 }
+    ]
+  }
+};
 
 export class ApiClient {
-  async fetchStockData(symbol: string): Promise<StockData[]> {
-    const response = await fetch(`${API_BASE_URL}/analyze`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        symbol,
-        analysisType: 'technical',
-      }),
-    });
+  async fetchStockData(symbol: string) {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const mockData = MOCK_STOCK_DATA[symbol] || {
+      price: 100 + Math.random() * 100,
+      change: -5 + Math.random() * 10,
+      changePercent: -5 + Math.random() * 10,
+      volume: Math.floor(Math.random() * 10000000),
+      previousClose: 100 + Math.random() * 100,
+      historicalData: []
+    };
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch stock data');
-    }
-
-    const data = await response.json();
-    return data.data?.stockData || [];
-  }
-
-  async fetchTechnicalIndicators(symbol: string): Promise<TechnicalIndicators> {
-    const response = await fetch(`${API_BASE_URL}/analyze`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        symbol,
-        analysisType: 'technical',
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch technical indicators');
-    }
-
-    const data = await response.json();
-    return data.data?.indicators || {};
+    return mockData;
   }
 
   async searchSymbols(query: string): Promise<string[]> {
-    const response = await fetch(`${API_BASE_URL}/symbols?search=${query}`);
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
     
-    if (!response.ok) {
-      throw new Error('Failed to search symbols');
-    }
-
-    return response.json();
+    // Filter mock symbols based on query
+    return MOCK_SYMBOLS.filter(symbol => 
+      symbol.toLowerCase().includes(query.toLowerCase())
+    );
   }
 }

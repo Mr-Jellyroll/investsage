@@ -1,57 +1,74 @@
+"use client";
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer,
-  AreaChart, Area
+  AreaChart, Area, BarChart, Bar
 } from 'recharts';
 
-const TechnicalAnalysis = ({ data }) => {
-  // Calculate moving averages
-  const calculateMA = (data, period) => {
+interface TechnicalAnalysisProps {
+  data: Array<{
+    date: string;
+    price: number;
+    volume: number;
+  }>;
+}
+
+const TechnicalAnalysis = ({ data }: TechnicalAnalysisProps) => {
+  // Calculate simple moving averages
+  const calculateSMA = (period: number) => {
     return data.map((item, index) => {
-      if (index < period - 1) return { ...item, ma: null };
-      const slice = data.slice(index - period + 1, index + 1);
-      const average = slice.reduce((sum, item) => sum + item.price, 0) / period;
-      return { ...item, [`ma${period}`]: average };
+      if (index < period - 1) return { ...item, [`sma${period}`]: null };
+      const sum = data.slice(index - period + 1, index + 1)
+        .reduce((acc, cur) => acc + cur.price, 0);
+      return { ...item, [`sma${period}`]: sum / period };
     });
   };
 
-  const dataWithMA = calculateMA(calculateMA(data, 20), 50);
+  const dataWithSMA = calculateSMA(20);
 
   return (
     <div className="space-y-6">
-      {/* Price with Moving Averages */}
+      {/* Price Chart with SMA */}
       <Card>
         <CardHeader>
-          <CardTitle>Price and Moving Averages</CardTitle>
+          <CardTitle>Price Analysis</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={dataWithMA}>
+              <LineChart data={dataWithSMA}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
+                <XAxis 
+                  dataKey="date"
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                />
+                <YAxis 
+                  domain={['auto', 'auto']}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip
+                  labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                  formatter={(value: number) => ['$' + value.toFixed(2)]}
+                />
                 <Legend />
                 <Line 
                   type="monotone" 
                   dataKey="price" 
                   stroke="#2563eb" 
+                  name="Price"
                   dot={false}
                 />
                 <Line 
                   type="monotone" 
-                  dataKey="ma20" 
+                  dataKey="sma20" 
                   stroke="#dc2626" 
+                  name="20-day SMA"
                   dot={false}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="ma50" 
-                  stroke="#16a34a" 
-                  dot={false}
+                  strokeDasharray="5 5"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -59,112 +76,74 @@ const TechnicalAnalysis = ({ data }) => {
         </CardContent>
       </Card>
 
-      {/* RSI Chart */}
+      {/* Volume Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Relative Strength Index (RSI)</CardTitle>
+          <CardTitle>Volume Analysis</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
+              <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="rsi" 
-                  stroke="#8b5cf6" 
-                  dot={false}
+                <XAxis 
+                  dataKey="date"
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => new Date(value).toLocaleDateString()}
                 />
-                {/* Overbought/Oversold lines */}
-                <Line 
-                  type="monotone" 
-                  dataKey="overbought" 
-                  stroke="#dc2626" 
-                  strokeDasharray="3 3"
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => (value / 1000000).toFixed(1) + 'M'}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="oversold" 
-                  stroke="#16a34a" 
-                  strokeDasharray="3 3"
+                <Tooltip
+                  labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                  formatter={(value: number) => [
+                    (value / 1000000).toFixed(2) + 'M',
+                    'Volume'
+                  ]}
                 />
-              </LineChart>
+                <Bar 
+                  dataKey="volume" 
+                  fill="#3b82f6" 
+                  name="Volume"
+                />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
 
-      {/* MACD Chart */}
+      {/* Price Range Analysis */}
       <Card>
         <CardHeader>
-          <CardTitle>MACD</CardTitle>
+          <CardTitle>Price Trend</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
+                <XAxis 
+                  dataKey="date"
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                />
+                <YAxis 
+                  domain={['auto', 'auto']}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip
+                  labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                  formatter={(value: number) => ['$' + value.toFixed(2), 'Price']}
+                />
                 <Area 
                   type="monotone" 
-                  dataKey="macd" 
-                  fill="#93c5fd" 
+                  dataKey="price"
                   stroke="#2563eb"
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="signal" 
-                  stroke="#dc2626" 
-                  dot={false}
+                  fill="#93c5fd"
+                  name="Price"
                 />
               </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Bollinger Bands */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Bollinger Bands</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="price" 
-                  stroke="#2563eb" 
-                  dot={false}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="upperBand" 
-                  stroke="#dc2626" 
-                  dot={false}
-                  strokeDasharray="3 3"
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="lowerBand" 
-                  stroke="#16a34a" 
-                  dot={false}
-                  strokeDasharray="3 3"
-                />
-              </LineChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
