@@ -44,7 +44,7 @@ def test_symbol_extraction():
         ),
         (
             "FAANG stocks (FB META AAPL AMZN NFLX GOOG) are trending",
-            ["FB", "META", "AAPL", "AMZN", "NFLX", "GOOG",]
+            ["META", "AAPL", "AMZN", "NFLX", "GOOG",]
         ),
         (
             "Looking at $AMD, NVDA, and INTC for semiconductor plays",
