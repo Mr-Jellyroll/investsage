@@ -1,3 +1,4 @@
+
 import praw
 import sqlite3
 import logging
@@ -20,11 +21,9 @@ class RedditCollector:
             'stockmarket'
         ]
         
-        # Get creds
         try:
             credentials = get_reddit_credentials()
             logger.info("Successfully loaded Reddit credentials")
-            logger.debug(f"Using client_id: {credentials['client_id'][:4]}...")
             
             # Initialize Reddit client
             self.reddit = praw.Reddit(
@@ -32,22 +31,27 @@ class RedditCollector:
                 client_secret=credentials['client_secret'],
                 user_agent=credentials['user_agent']
             )
-            logger.info("Reddit client initialized")
+            
+            test_subreddit = self.reddit.subreddit('test')
+            test_subreddit.description  # This will fail if auth is incorrect
+            logger.info("Reddit authentication successful")
             
         except Exception as e:
             logger.error(f"Error initializing Reddit client: {str(e)}")
             raise
 
-   def extract_ticker_symbols(self, text: str) -> List[str]:
+    def extract_ticker_symbols(self, text: str) -> List[str]:
+        """Extract stock symbols from text with better validation"""
         # Common false positives to filter out
         common_words = {
             'A', 'I', 'ME', 'MY', 'THE', 'AND', 'OR', 'IT', 'IS', 'BE', 'AI', 'CEO',
             'IPO', 'USA', 'GDP', 'NFL', 'CIA', 'FBI', 'SEC', 'ETF', 'ROI', 'YOLO',
-            'IMO', 'FOMO', 'FUD', 'EPS', 'P/E', 'ATH', 'DD', 'PR', 'TV', 'UK'
+            'IMO', 'FOMO', 'FUD', 'EPS', 'P/E', 'ATH', 'DD', 'PR', 'TV', 'UK',
+            'ML', 'API', 'CEO', 'CPI', 'CTO', 'CFO', 'COO', 'PM', 'Q&A', 'M&A', 'FAANG',
+            'R&D'
         }
         
-        # Terms that might be part of company names
-        company_terms = {'INC', 'CORP', 'LTD', 'LLC', 'GROUP', 'HOLDINGS', 'PLC'}
+        company_terms = {'INC', 'CORP', 'LTD', 'LLC', 'GROUP', 'HOLDINGS', 'PLC', 'CO', 'AG'}
         
         # First, find potential tickers
         # Look for:
@@ -55,11 +59,9 @@ class RedditCollector:
         # 2. Standalone capitalized words 1-5 letters long
         potential_tickers = []
         
-        # Find $ticker mentions
         cash_tags = re.findall(r'\$([A-Z]{1,5})\b', text)
         potential_tickers.extend(cash_tags)
         
-        # Find potential standalone tickers
         words = re.findall(r'\b[A-Z]{1,5}\b', text)
         potential_tickers.extend(words)
         
@@ -68,7 +70,7 @@ class RedditCollector:
         for ticker in potential_tickers:
             ticker = ticker.strip('$')
             
-            # Skip if it's in blacklists
+            # Skip if it's in our blacklists
             if ticker in common_words or ticker in company_terms:
                 continue
                 
@@ -86,10 +88,8 @@ class RedditCollector:
         return list(dict.fromkeys(valid_tickers))
 
     def calculate_sentiment(self, text: str) -> float:
-        """
-        Placeholder for analysis
-        """
-        return 0.0
+        """Placeholder for sentiment analysis"""
+        return 0.0  # Neutral sentiment for now
 
     def count_engagements(self, post) -> int:
         """Count total engagements (score + comments)"""
@@ -166,6 +166,7 @@ class RedditCollector:
         for subreddit in self.subreddits:
             posts = self.collect_subreddit_posts(subreddit, post_limit)
             
+            # Filter by symbols if specified
             if symbols:
                 posts = [p for p in posts if p['symbol'] in symbols]
             
