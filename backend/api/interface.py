@@ -13,7 +13,8 @@ from .models import (
     RiskAnalysisResponse, PortfolioAnalysisResponse
 )
 
-from ..analysis.base import Analyzer
+from backend.analysis.base import Analyzer
+
 from ..analysis.technical import TechnicalAnalyzer
 from ..analysis.sentiment import SentimentAnalyzer
 from ..analysis.ml import MLAnalyzer
@@ -298,4 +299,10 @@ def main():
     print(response)
 
 if __name__ == "__main__":
-    main()
+    import sys
+    import json
+    
+    request_data = json.loads(sys.argv[1])
+    api = InvestSageAPI()
+    result = api.analyze(request_data)
+    print(json.dumps(result.to_dict()))

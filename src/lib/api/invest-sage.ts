@@ -22,6 +22,15 @@ export class InvestSageAPI {
 
   constructor(baseUrl = '/api') {
     this.baseUrl = baseUrl;
+
+  }
+  async analyze(request: AnalysisRequest): Promise<AnalysisResponse> {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    });
+    return response.json();
   }
 
   /**

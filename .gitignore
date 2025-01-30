@@ -38,3 +38,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Virtual environment directories
+venv/
+.venv/
+env/
+.virtualenv/
+
+# Byte-compiled / cached files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+*.egg-info/
+*.egg
