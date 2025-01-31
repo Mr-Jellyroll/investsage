@@ -1,25 +1,22 @@
-import { AnalysisRequest } from '@/types/api';
-
 export class ApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl = '/api') {
+  constructor(baseUrl = 'http://localhost:8000') {
     this.baseUrl = baseUrl;
   }
 
   async fetchStockData(symbol: string) {
     try {
-      // First get basic stock info
       const stockResponse = await fetch(`${this.baseUrl}/stock/${symbol}`);
       if (!stockResponse.ok) {
-        throw new Error('Failed to fetch stock data');
+        const errorData = await stockResponse.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to fetch stock data');
       }
       const stockData = await stockResponse.json();
 
-      // Then get analysis data
-      const analysisRequest: AnalysisRequest = {
+      const analysisRequest = {
         symbol,
-        analysisType: 'all'
+        analysis_type: 'all'
       };
 
       const analysisResponse = await fetch(`${this.baseUrl}/analyze`, {
@@ -31,12 +28,11 @@ export class ApiClient {
       });
 
       if (!analysisResponse.ok) {
-        throw new Error('Failed to fetch analysis data');
+        const errorData = await analysisResponse.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to fetch analysis data');
       }
 
       const analysisData = await analysisResponse.json();
-
-      // Combine the data
       return {
         ...stockData,
         ...analysisData.data
@@ -49,11 +45,19 @@ export class ApiClient {
 
   async searchSymbols(query: string): Promise<string[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/stock/search?q=${encodeURIComponent(query)}`);
+      console.log(`Searching for symbols matching: ${query}`);
+      const response = await fetch(
+        `${this.baseUrl}/stock/search?q=${encodeURIComponent(query)}`
+      );
+      
       if (!response.ok) {
-        throw new Error('Failed to search symbols');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to search symbols');
       }
-      return await response.json();
+      
+      const data = await response.json();
+      console.log('Search results:', data);
+      return data;
     } catch (error) {
       console.error('Error searching symbols:', error);
       throw error;
