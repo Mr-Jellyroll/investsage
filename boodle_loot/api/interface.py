@@ -3,23 +3,26 @@ from datetime import datetime
 import logging
 from pathlib import Path
 import sqlite3
+from enum import Enum
+from dataclasses import dataclass
 
 from .validation import RequestValidator
 from .errors import ValidationError, create_error_response
 from .models import (
-    AnalysisRequest, AnalysisResponse, AnalysisType,
-    TechnicalAnalysisResponse, SentimentAnalysisResponse,
-    MLPredictionResponse, OptionsAnalysisResponse,
-    RiskAnalysisResponse, PortfolioAnalysisResponse
+    TechnicalAnalysisResponse,
+    SentimentAnalysisResponse,
+    MLPredictionResponse,
+    OptionsAnalysisResponse,
+    RiskAnalysisResponse,
+    PortfolioAnalysisResponse
 )
 
-from backend.analysis.base import Analyzer
-
+from ..analysis.base import Analyzer
 from ..analysis.technical import TechnicalAnalyzer
 from ..analysis.sentiment import SentimentAnalyzer
 from ..analysis.ml import MLAnalyzer
 from ..analysis.options import OptionsAnalyzer
-from ..analysis.portfolio import TaxAwarePortfolioAnalyzer
+from ..analysis.portfolio import PortfolioAnalyzer
 from ..analysis.risk import RiskAnalyzer
 
 # Configure logging
@@ -56,6 +59,16 @@ class AnalysisResponse:
     warnings: Optional[List[str]] = None
     metadata: Optional[Dict] = None
 
+    def to_dict(self) -> Dict:
+        """Convert response to dictionary format"""
+        return {
+            'success': self.success,
+            'data': self.data,
+            'error': self.error,
+            'warnings': self.warnings,
+            'metadata': self.metadata
+        }
+
 class ValidationError(Exception):
     """Custom exception for input validation errors"""
     pass
@@ -76,7 +89,7 @@ class InvestSageAPI:
             self.sentiment = SentimentAnalyzer(db_path)
             self.ml = MLAnalyzer(db_path)
             self.options = OptionsAnalyzer(db_path)
-            self.portfolio = TaxAwarePortfolioAnalyzer(db_path)
+            self.portfolio = PortfolioAnalyzer(db_path)
             self.risk = RiskAnalyzer(db_path)
             
             logger.info(f"InvestSage API initialized with database at {db_path}")

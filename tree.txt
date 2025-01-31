@@ -1,0 +1,141 @@
+.
+├── README.md
+├── boodle_loot
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   └── __init__.cpython-311.pyc
+│   ├── analysis
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-311.pyc
+│   │   │   ├── base.cpython-311.pyc
+│   │   │   ├── ml.cpython-311.pyc
+│   │   │   ├── options.cpython-311.pyc
+│   │   │   ├── portfolio.cpython-311.pyc
+│   │   │   ├── risk.cpython-311.pyc
+│   │   │   ├── sentiment.cpython-311.pyc
+│   │   │   └── technical.cpython-311.pyc
+│   │   ├── base.py
+│   │   ├── ml.py
+│   │   ├── options.py
+│   │   ├── portfolio.py
+│   │   ├── risk.py
+│   │   ├── sentiment.py
+│   │   ├── sentiment_summary.py
+│   │   └── technical.py
+│   ├── api
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-311.pyc
+│   │   │   ├── errors.cpython-311.pyc
+│   │   │   ├── interface.cpython-311.pyc
+│   │   │   ├── models.cpython-311.pyc
+│   │   │   └── validation.cpython-311.pyc
+│   │   ├── errors.py
+│   │   ├── interface.py
+│   │   ├── models.py
+│   │   ├── server.py
+│   │   └── validation.py
+│   ├── collectors
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-311.pyc
+│   │   │   ├── edgar_collector.cpython-311.pyc
+│   │   │   ├── news_collector.cpython-311.pyc
+│   │   │   ├── reddit_collector.cpython-311.pyc
+│   │   │   ├── sentiment_analyzer.cpython-311.pyc
+│   │   │   └── yahoo_finance.cpython-311.pyc
+│   │   ├── edgar_collector.py
+│   │   ├── news_collector.py
+│   │   ├── reddit_collector.py
+│   │   ├── sentiment_analyzer.py
+│   │   └── yahoo_finance.py
+│   ├── requirements.txt
+│   ├── setup.py
+│   ├── setup_database.py
+│   ├── tests
+│   │   ├── __init__.py
+│   │   ├── test_collectors_all.py
+│   │   ├── test_edgar.py
+│   │   ├── test_news.py
+│   │   ├── test_reddit.py
+│   │   ├── test_sentiment.py
+│   │   ├── test_stock.py
+│   │   └── test_symbol_extraction.py
+│   └── utils
+│       ├── __init__.py
+│       ├── __pycache__
+│       │   ├── __init__.cpython-311.pyc
+│       │   └── secrets.cpython-311.pyc
+│       └── secrets.py
+├── components.json
+├── data
+│   └── investsage.db
+├── eslint.config.mjs
+├── investsage.egg-info
+│   ├── PKG-INFO
+│   ├── SOURCES.txt
+│   ├── dependency_links.txt
+│   ├── requires.txt
+│   └── top_level.txt
+├── next-env.d.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── prisma
+│   └── schema.prisma
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── setup.py
+├── src
+│   ├── app
+│   │   ├── api
+│   │   │   ├── analyze
+│   │   │   │   └── route.ts
+│   │   │   └── stock
+│   │   │       └── route.ts
+│   │   ├── favicon.ico
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── Dashboard.tsx
+│   │   ├── StockOverview.tsx
+│   │   ├── StockSearch.tsx
+│   │   ├── TabsAnalysis.tsx
+│   │   ├── TechnicalAnalysis.tsx
+│   │   ├── analysis
+│   │   │   ├── MLAnalysis.tsx
+│   │   │   ├── OptionsAnalysis.tsx
+│   │   │   ├── PortfolioAnalysis.tsx
+│   │   │   ├── RiskAnalysis.tsx
+│   │   │   ├── SentimentAnalysis.tsx
+│   │   │   └── TechnicalAnalysis.tsx
+│   │   └── ui
+│   │       ├── card.tsx
+│   │       ├── input.tsx
+│   │       ├── search.tsx
+│   │       └── tabs.tsx
+│   ├── lib
+│   │   ├── api
+│   │   │   ├── invest-sage.ts
+│   │   │   └── yahoo.ts
+│   │   ├── api-client.ts
+│   │   ├── database
+│   │   │   └── sqlite.ts
+│   │   └── utils.ts
+│   ├── styles
+│   │   └── globals.css
+│   └── types
+│       ├── api.ts
+│       └── stock.ts
+├── tailwind.config.js
+├── tailwind.config.ts
+├── tree.txt
+└── tsconfig.json
+
+29 directories, 110 files
