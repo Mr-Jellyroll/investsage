@@ -1,11 +1,20 @@
-import { NextConfig } from 'next'
+import type { NextConfig } from 'next'
 
-const config: NextConfig = {
+const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      allowedForwardedHosts: ["localhost"]
+      enabled: true,
+      allowedOrigins: ["localhost:8000"]
     }
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:8000/:path*'
+      }
+    ]
   }
 }
 
-export default config
+export default nextConfig

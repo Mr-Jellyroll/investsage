@@ -1,49 +1,62 @@
-// Mock data for development
-const MOCK_SYMBOLS = [
-  'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META', 'TSLA', 'NVDA', 'JPM', 'BAC', 'WMT'
-];
-
-const MOCK_STOCK_DATA = {
-  AAPL: {
-    price: 185.92,
-    change: 2.34,
-    changePercent: 1.27,
-    volume: 58432100,
-    previousClose: 183.58,
-    historicalData: [
-      { date: '2024-01-01', price: 180.50, volume: 1200000 },
-      { date: '2024-01-02', price: 182.75, volume: 1500000 },
-      { date: '2024-01-03', price: 181.25, volume: 1100000 },
-      { date: '2024-01-04', price: 183.00, volume: 1300000 },
-      { date: '2024-01-05', price: 185.50, volume: 1600000 }
-    ]
-  }
-};
+import { AnalysisRequest } from '@/types/api';
 
 export class ApiClient {
-  async fetchStockData(symbol: string) {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const mockData = MOCK_STOCK_DATA[symbol] || {
-      price: 100 + Math.random() * 100,
-      change: -5 + Math.random() * 10,
-      changePercent: -5 + Math.random() * 10,
-      volume: Math.floor(Math.random() * 10000000),
-      previousClose: 100 + Math.random() * 100,
-      historicalData: []
-    };
+  private baseUrl: string;
 
-    return mockData;
+  constructor(baseUrl = '/api') {
+    this.baseUrl = baseUrl;
+  }
+
+  async fetchStockData(symbol: string) {
+    try {
+      // First get basic stock info
+      const stockResponse = await fetch(`${this.baseUrl}/stock/${symbol}`);
+      if (!stockResponse.ok) {
+        throw new Error('Failed to fetch stock data');
+      }
+      const stockData = await stockResponse.json();
+
+      // Then get analysis data
+      const analysisRequest: AnalysisRequest = {
+        symbol,
+        analysisType: 'all'
+      };
+
+      const analysisResponse = await fetch(`${this.baseUrl}/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(analysisRequest),
+      });
+
+      if (!analysisResponse.ok) {
+        throw new Error('Failed to fetch analysis data');
+      }
+
+      const analysisData = await analysisResponse.json();
+
+      // Combine the data
+      return {
+        ...stockData,
+        ...analysisData.data
+      };
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
   }
 
   async searchSymbols(query: string): Promise<string[]> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // Filter mock symbols based on query
-    return MOCK_SYMBOLS.filter(symbol => 
-      symbol.toLowerCase().includes(query.toLowerCase())
-    );
+    try {
+      const response = await fetch(`${this.baseUrl}/stock/search?q=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+        throw new Error('Failed to search symbols');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error searching symbols:', error);
+      throw error;
+    }
   }
 }
